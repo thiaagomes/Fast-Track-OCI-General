@@ -230,7 +230,7 @@ Primeiro passo é abrir a pasta da Function no Code Editor
       - retorno esperado : fdk>=0.1.113, PyMySQL==1.1.1
 
 3. Atualizar o func.py, iremos inserir um código simples que recebe um JSON via fn invoke, Lê bucket_name, object_name, object_url e event_time, Conecta no MySQL, Insere na tabela  fast_track_db.bucket_files e por fim retorna um response JSON
-   - Através da UI do Code Editor edite o arquivo ![alt text](/func.py)
+   - Através da UI do Code Editor edite o arquivo [fun.py](func.py)
    - Atualizar a Version no func.yaml por exemo: version: 0.0.5
    - Atualizar o func.yaml aumentando a memory e inserindo timeout : memory: 512, timeout: 120
 
@@ -295,7 +295,7 @@ A ideia é criar um app Flask bem simples, em um único arquivo app.py, que faz 
 3. Crie um arquivo requirements.txt: nano requirements.txt
    - Flask==3.0.3 / PyMySQL==1.1.1 / cryptography==42.0.8
    *importante - comandos nano -> CTRL + O, Enter, CTRL + X*
-4. Crie um app.py : nano app.py = ![alt text](/app.py)
+4. Crie um app.py : nano app.py = [app.py](app.py)
 5. Dentro da pasta ~/oci-fast-track-web rode: python3 -m pip install --user -r requirements.txt
 6. Valide : python3 -c "import flask; import pymysql; import cryptography; print('OK')"
 7. Valide liberação da porta 5000 na VM : sudo firewall-cmd --list-ports
@@ -312,7 +312,7 @@ A ideia é criar um app Flask bem simples, em um único arquivo app.py, que faz 
    - Acesse no navegador : http://<IP_PUBLICO_VM>:5000 por exemplo: http://147.15.25.7:5000
    - Resultado esperado: 
 
-   ![alt text](image.png)
+   ![alt text](/images/image17.png)
 
 ---
 ## 🎯  Considerações finais
