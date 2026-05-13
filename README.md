@@ -223,6 +223,7 @@ Primeiro passo é abrir a pasta da Function no Code Editor
    cat > requirements.txt <<'EOF'
    fdk>=0.1.113
    PyMySQL==1.1.1
+   cryptography==42.0.8
    EOF
    ```
    - Valide: cat requirements.txt
@@ -231,6 +232,7 @@ Primeiro passo é abrir a pasta da Function no Code Editor
 3. Atualizar o func.py, iremos inserir um código simples que recebe um JSON via fn invoke, Lê bucket_name, object_name, object_url e event_time, Conecta no MySQL, Insere na tabela  fast_track_db.bucket_files e por fim retorna um response JSON
    - Através da UI do Code Editor edite o arquivo ![alt text](/func.py)
    - Atualizar a Version no func.yaml por exemo: version: 0.0.5
+   - Atualizar o func.yaml aumentando a memory e inserindo timeout : memory: 512, timeout: 120
 
 4. Depois de Salvar o Arquivo execute o comando: fn -v deploy --app <NOME_FUNCTIONS> por exemplo: fn -v deploy --app functions-fast-track
    - Retorno esperado: ![alt text](/images/image11.png)
@@ -275,6 +277,53 @@ Primeiro passo é abrir a pasta da Function no Code Editor
 ### 1.11 Teste de envio de arquivo no Object Storage
 Agora iremos enviar um arquivo, para que seja testado o Events Service invocando a functions para que ela grave o metadado no MySQL
 
+**Ponto Importante** 
+Antes de qualquer teste, habilite no bucket "Emit object events"
+
 1. Inserindo arquivo no Object Storage (Bucket): **Menu Principal → Storage → Object Storage & Archive Storage → Bucket**
    - Pesquise o Bucket → Vá em Objects → Upload objects → Drop a file or select one
    - Habilitar logs na Function para verificar se houve invoke
+
+![alt text](/images/image15.png)
+
+---
+### 1.12 Criação da Aplicação na VM OCI
+A ideia é criar um app Flask bem simples, em um único arquivo app.py, que faz o SELECT na tabela bucket_files e renderiza uma página HTML com os arquivos processados.
+
+1. Acesse no Cloud Shell a VM: ssh -i ~/ssh-key-fast-track-private.key opc@147.15.25.7
+2. Crie uma pasta para aplicação: mkdir -p ~/oci-fast-track-web e depois entre na pasta: cd ~/oci-fast-track-web
+3. Crie um arquivo requirements.txt: nano requirements.txt
+   - Flask==3.0.3 / PyMySQL==1.1.1 / cryptography==42.0.8
+   *importante - comandos nano -> CTRL + O, Enter, CTRL + X*
+4. Crie um app.py : nano app.py = ![alt text](/app.py)
+5. Dentro da pasta ~/oci-fast-track-web rode: python3 -m pip install --user -r requirements.txt
+6. Valide : python3 -c "import flask; import pymysql; import cryptography; print('OK')"
+7. Valide liberação da porta 5000 na VM : sudo firewall-cmd --list-ports
+   - Caso não apareca 5000/TCP rode : sudo firewall-cmd --permanent --add-port=5000/tcp e sudo firewall-cmd --reload
+
+8. Faça a liberação na Security List da Subnet Pública onde está a VM, siga o passo 1.5 (1) porém insira essas regras: 
+   - Ingress Rules → Source CIDR: 0.0.0.0/0 IP Protocol TCP, Destination Port Range: 5000
+
+9. Suba a aplicação Flask : cd ~/oci-fast-track-web
+   - Execute: python3 app.py
+   - Retorno esperado: 
+      ![alt text](/images/image16.png)
+   
+   - Acesse no navegador : http://<IP_PUBLICO_VM>:5000 por exemplo: http://147.15.25.7:5000
+   - Resultado esperado: 
+
+   ![alt text](image.png)
+
+---
+## 🎯  Considerações finais
+
+Esse fluxo permitiu validar, na prática, conceitos importantes de arquitetura cloud, como separação entre subnets públicas e privadas, acesso privado entre recursos dentro da VCN, uso de Object Storage para armazenamento de arquivos, automação orientada a eventos com OCI Events, execução serverless com OCI Functions, persistência de metadados em MySQL e exposição de uma aplicação web simples em uma Compute Instance.
+
+
+---
+
+**Profissional Oracle:** Thiago Alves Gomes
+**Fast Track Hands On 
+**Tema:** Arquitetura Oracle com fundação de Infraestrutura além de recursos como Functions e Events Service
+
+---
